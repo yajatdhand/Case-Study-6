@@ -1,0 +1,320 @@
+**MOBILE MANAGEMENT APPLICATION**
+==================================
+Using SpringBoot, Data JPA, Rest : -
+------------------------------------------------
+
+1. Class Mobile : - //Entity Class
+------------------------------------------
+package com.mobile.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Mobile {
+	
+	@Id
+	private int mobileId;
+	private String mobileName;
+	private String mobileType;
+	private int mobilePrice;
+	private String mobileWarranty;
+	@Column(name="imei_number")
+	private String mobileImeiNumber;
+	
+//GettersAndSetters
+
+	public int getMobileId() {
+		return mobileId;
+	}
+	public void setMobileId(int mobileId) {
+		this.mobileId = mobileId;
+	}
+	public String getMobileName() {
+		return mobileName;
+	}
+	public void setMobileName(String mobileName) {
+		this.mobileName = mobileName;
+	}
+	public String getMobileType() {
+		return mobileType;
+	}
+	public void setMobileType(String mobileType) {
+		this.mobileType = mobileType;
+	}
+	public int getMobilePrice() {
+		return mobilePrice;
+	}
+	public void setMobilePrice(int mobilePrice) {
+		this.mobilePrice = mobilePrice;
+	}
+	public String getMobileWarranty() {
+		return mobileWarranty;
+	}
+	public void setMobileWarranty(String mobileWarranty) {
+		this.mobileWarranty = mobileWarranty;
+	}
+	public String getMobileImeiNumber() {
+		return mobileImeiNumber;
+	}
+	public void setMobileImeiNumber(String mobileImeiNumber) {
+		this.mobileImeiNumber = mobileImeiNumber;
+	}
+
+//ToString method
+
+	@Override
+	public String toString() {
+		return "Mobile [mobileId=" + mobileId + ", mobileName=" + mobileName + ", mobileType=" + mobileType
+				+ ", mobilePrice=" + mobilePrice + ", mobileWarranty=" + mobileWarranty + ", mobileImeiNumber="
+				+ mobileImeiNumber + "]";
+	}
+	
+//DefaultConstructor
+	public Mobile() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public Mobile(int mobileId, String mobileName, String mobileType, int mobilePrice, String mobileWarranty,
+			String mobileImeiNumber) {
+		super();
+		this.mobileId = mobileId;
+		this.mobileName = mobileName;
+		this.mobileType = mobileType;
+		this.mobilePrice = mobilePrice;
+		this.mobileWarranty = mobileWarranty;
+		this.mobileImeiNumber = mobileImeiNumber;
+	}
+	
+	
+	
+}
+
+2. Interface Mobile Service : -
+--------------------------------------
+package com.mobile.service;
+
+import java.util.Optional;
+
+import com.mobile.entity.Mobile;
+
+public interface MobileService {
+
+//AbstractMethods(Services provided by Mobile Management Application)
+
+	Mobile addMobile(Mobile mobile);
+
+	Mobile updateMobile(Mobile mobile);
+
+	void deleteMobile(int mobileId);
+
+	Optional<Mobile> getMobile(int mobileId);
+
+	Iterable<Mobile> getAllMobiles();
+
+}
+
+3. Class MobileServiceImpl : - //Implemented class for MobileService
+-----------------------------------------------------------------------------------------
+package com.mobile.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.mobile.dao.MobileDao;
+import com.mobile.entity.Mobile;
+
+@Service
+@Transactional
+public class MobileServiceImpl implements MobileService{
+
+	@Autowired
+	MobileDao dao;
+	
+	@Override
+	public Mobile addMobile(Mobile mobile) {
+		return dao.save(mobile);
+	}
+
+	@Override
+	public Mobile updateMobile(Mobile mobile) {
+		return dao.save(mobile);
+	}
+
+	@Override
+	public void deleteMobile(int mobileId) {
+		 dao.deleteById(mobileId);
+	}
+
+	@Override
+	public Optional<Mobile> getMobile(int mobileId) {
+		return dao.findById(mobileId);
+	}
+
+	@Override
+	public Iterable<Mobile> getAllMobiles() {
+		return dao.findAll();
+	}
+
+}
+
+4. Interface MobileDao : -
+---------------------------------
+package com.mobile.dao;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.mobile.entity.Mobile;
+
+public interface MobileDao extends CrudRepository<Mobile, Integer> {
+
+}
+
+5. Class Controller : -
+----------------------------
+package com.mobile.controller;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mobile.entity.Mobile;
+import com.mobile.service.MobileService;
+
+
+@RestController
+@RequestMapping("/mobile")
+public class MobileController {
+
+	@Autowired
+	MobileService service;
+	
+	@PostMapping("/addMobile") // http://localhost:3333/mobile/addMobile
+	public Mobile addMobile(@RequestBody Mobile mobile)
+	{
+		return service.addMobile(mobile);
+	}
+	
+	@PutMapping("/updateMobile") // http://localhost:3333/mobile/updateMobile
+	public Mobile updateMobile(@RequestBody Mobile mobile)
+	{
+		return service.updateMobile(mobile);
+	}
+	
+	@GetMapping("/getMobile/{mobileId}") // http://localhost:3333/mobile/getMobile
+	public Optional<Mobile> getMobile(@PathVariable ("mobileId") int mobileId)
+	{
+		return service.getMobile(mobileId);
+	}
+	
+	@DeleteMapping("/deleteMobile/{mobileId}") // http://localhost:3333/mobile/deleteMobile
+	public void deleteMobile(@PathVariable ("mobileId") int mobileId)
+	{
+		service.deleteMobile(mobileId);
+	}
+	
+	@GetMapping("/getAllMobiles") // http://localhost:3333/mobile/getAllMobiles
+	public Iterable<Mobile> getAllMobiles()
+	{
+		return service.getAllMobiles();
+	}
+	
+}
+
+6. application.properties : -
+----------------------------------
+server.port=3333
+spring.datasource.url=jdbc:postgresql://localhost:5432/one
+spring.datasource.username=postgres
+spring.datasource.password=abc123
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+
+## OUTPUTS ## : -
+---------------------------
+#addMobile Output : -
+----------------------------
+one=# select * from mobile;
+ mobile_id |   imei_number    |       mobile_name        | mobile_price | mobile_type |   mobile_warranty
+-----------+------------------+--------------------------+--------------+-------------+---------------------
+       101 | 056745190977999  | Samsung Galaxy S22 Ultra |       119999 | Android     | 1 Year
+       102 | 093452676016345  | Apple iphone 13 Pro Max  |       139999 | iOS         | 1 Year
+       103 | 012367451100889  | Samsung Galaxy Note 10   |        80000 | Android     | 1 Year and 6 Months
+       104 | 012367451199339  | Samsung Galaxy Fold 3    |       150000 | Android     | 1 Year and 6 Months
+(4 rows)
+
+#updateMobile Output : -
+--------------------------------
+one=# select * from mobile;
+ mobile_id |   imei_number   |       mobile_name        | mobile_price | mobile_type | mobile_warranty
+-----------+-----------------+--------------------------+--------------+-------------+-----------------
+       101 | 002813259673451 | Samsung Galaxy S22 Ultra |       119999 | Android     | 1 Year
+       102 | 093452676016345 | Apple iphone 13 Pro Max  |       139999 | iOS         | 1 Year
+       104 | 012367451199339 | Samsung Galaxy Fold 3    |       150000 | Android     | 1 Year
+       103 | 012367451100889 | Samsung Galaxy Note 10   |        80000 | Android     | 1 Year
+(4 rows)
+
+#getMobile Output : -
+----------------------------
+{
+    "mobileId": 101,
+    "mobileName": "Samsung Galaxy S22 Ultra",
+    "mobileType": "Android",
+    "mobilePrice": 119999,
+    "mobileWarranty": "1 Year",
+    "mobileImeiNumber": "056745190977999"
+}
+
+#deleteMobile Output : -
+-------------------------------
+one=# select * from mobile;
+ mobile_id |   imei_number    |       mobile_name        | mobile_price | mobile_type |   mobile_warranty
+-----------+------------------+--------------------------+--------------+-------------+---------------------
+       101 | 056745190977999  | Samsung Galaxy S22 Ultra |       119999 | Android     | 1 Year
+       102 | 093452676016345  | Apple iphone 13 Pro Max  |       139999 | iOS         | 1 Year
+       104 | 012367451199339  | Samsung Galaxy Fold 3    |       140000 | Android     | 1 Year and 6 Months
+(3 rows)
+
+#getAllMobiles Output : -
+--------------------------------
+[
+    {
+        "mobileId": 101,
+        "mobileName": "Samsung Galaxy S22 Ultra",
+        "mobileType": "Android",
+        "mobilePrice": 119999,
+        "mobileWarranty": "1 Year",
+        "mobileImeiNumber": "056745190977999"
+    },
+    {
+        "mobileId": 102,
+        "mobileName": "Apple iphone 13 Pro Max",
+        "mobileType": "iOS",
+        "mobilePrice": 139999,
+        "mobileWarranty": "1 Year",
+        "mobileImeiNumber": "093452676016345 "
+    },
+    {
+        "mobileId": 104,
+        "mobileName": "Samsung Galaxy Fold 3",
+        "mobileType": "Android",
+        "mobilePrice": 140000,
+        "mobileWarranty": "1 Year and 6 Months",
+        "mobileImeiNumber": "012367451199339"
+    }
+]
